@@ -6,6 +6,7 @@ import cv2
 from cv_bridge import CvBridge
 from sensor_msgs.msg import Image
 from dynamic_reconfigure.server import Server
+import numpy as np
 
 from minrob_cv.cfg import ImageProcessorConfig
 
@@ -20,7 +21,7 @@ class ImageProcessor():
         rospy.init_node('image_processor', anonymous=True)
         # Pre-allocate a number of intermediate result publishers. Change this
         # number to get more or less publishers.
-        self.num_pubs = 1
+        self.num_pubs = 2
         self.pubs = []
 
         for i in range(self.num_pubs):
@@ -37,6 +38,10 @@ class ImageProcessor():
 
         # This publisher is used to publish the final image, with edits.
         self.output = rospy.Publisher('final_image', Image, queue_size=1)
+
+        # This publisher is used to publish images to debug
+        self.pubs.append(rospy.Publisher('subtracted_background',Image, queue_size=1))
+
 
         # This subscriber gets the frames from the video (a video publisher is
         # used as in-between: video_stream_opencv package).
@@ -74,6 +79,7 @@ class ImageProcessor():
         self.config = config
         return config
 
+
     def image_processing(self, im, frame_num):
         # =====================================================================
         # Here you should do the processing of the image.
@@ -97,6 +103,15 @@ class ImageProcessor():
         self.pubs[0].publish(self.bridge.cv2_to_imgmsg(im_thr,
                                                        encoding="passthrough"))
 
+        # Subtract background from moving image
+
+        if frame_num == 1:
+            background = im
+        
+        self.pubs[2].publish(self.bridge.cv2_to_imgmsg(subtracted,
+                                                       encoding="bgr8"))
+
+
         # EXAMPLE TO ADD THE SAXION LOGO ON TOP OF THE IMAGE
         # Treat the alpha channel as inverted mask
         _, mask_inv = cv2.threshold(self.logo_im[:, :, 3], 127, 255,
@@ -114,6 +129,10 @@ class ImageProcessor():
 
         # Write back to the original image and return
         im[:shp[0], -shp[1]:] = top_right
+
+        # Subtract the background from the image
+        
+
 
         # Note that the original image is returned without any edits.
         # =====================================================================
