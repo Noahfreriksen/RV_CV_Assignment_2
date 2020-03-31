@@ -36,6 +36,7 @@ class ImageProcessor():
         self.logo_im = cv2.resize(self.logo_im, (0, 0), fx=0.1, fy=0.1,
                                   interpolation=cv2.INTER_LINEAR)
 
+        # ------------------ ADD PUBLISH SUBJECTS HERE --------------------
         # This publisher is used to publish the final image, with edits.
         self.output = rospy.Publisher('final_image', Image, queue_size=1)
 
@@ -103,8 +104,8 @@ class ImageProcessor():
         self.pubs[0].publish(self.bridge.cv2_to_imgmsg(im_thr,
                                                        encoding="passthrough"))
 
+        # EIGEN TOEVOEGING
         # Subtract background from moving image
-
         if frame_num == 1:
             background = im
         
@@ -128,11 +129,7 @@ class ImageProcessor():
         top_right = cv2.add(top_right_bg, top_right_fg)
 
         # Write back to the original image and return
-        im[:shp[0], -shp[1]:] = top_right
-
-        # Subtract the background from the image
-        
-
+        im[:shp[0], -shp[1]:] = top_right        
 
         # Note that the original image is returned without any edits.
         # =====================================================================
