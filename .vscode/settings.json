@@ -1,0 +1,8 @@
+{
+    "ros.distro": "melodic",
+    "python.autoComplete.extraPaths": [
+        "/home/noah/RV_CV_Assignment_2_ws/devel/lib/python2.7/dist-packages",
+        "/home/noah/catkin_ws/devel/lib/python2.7/dist-packages",
+        "/opt/ros/melodic/lib/python2.7/dist-packages"
+    ]
+}

@@ -1,0 +1,9 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~crop_video" : \b [bool] Crop video to indicated frame range min: False, default: False, max: True
+- \b "~start_frame" : \b [int] Starting frame (zero-based) min: 0, default: 0, max: 500
+- \b "~end_frame" : \b [int] Ending frame (zero-based) min: 0, default: 500, max: 500
+- \b "~fps" : \b [int] Framerate in Hertz min: 1, default: 25, max: 25
+

@@ -1,0 +1,10 @@
+\subsubsection usage Usage
+\verbatim
+<node name="minrob_cv" pkg="minrob_cv" type="minrob_cv">
+  <param name="crop_video" type="bool" value="False" />
+  <param name="start_frame" type="int" value="0" />
+  <param name="end_frame" type="int" value="500" />
+  <param name="fps" type="int" value="25" />
+</node>
+\endverbatim
+

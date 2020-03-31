@@ -1,0 +1,11 @@
+\subsubsection parameters ROS parameters
+
+Reads and maintains the following parameters on the ROS server
+
+- \b "~h_max" : \b [int] Maximum hue. min: 0, default: 179, max: 179
+- \b "~h_min" : \b [int] Minimum hue. min: 0, default: 0, max: 179
+- \b "~s_max" : \b [int] Maximum saturation. min: 0, default: 255, max: 255
+- \b "~s_min" : \b [int] Minimum saturation. min: 0, default: 0, max: 255
+- \b "~v_max" : \b [int] Maximum value. min: 0, default: 255, max: 255
+- \b "~v_min" : \b [int] Minimum value. min: 0, default: 0, max: 255
+

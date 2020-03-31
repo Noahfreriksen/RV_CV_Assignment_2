@@ -1,0 +1,17 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "",
+        "limitSymbolsToIncludedHeaders": true
+      },
+      "includePath": [
+        "/home/noah/RV_CV_Assignment_2_ws/devel/include",
+        "/home/noah/catkin_ws/devel/include",
+        "/opt/ros/melodic/include",
+        "/usr/include"
+      ],
+      "name": "Linux"
+    }
+  ]
+}

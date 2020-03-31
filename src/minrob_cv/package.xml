@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>minrob_cv</name>
+  <version>0.0.1</version>
+  <description>The minrob_cv package</description>
+
+  <!-- One maintainer tag required, multiple allowed, one person per tag -->
+  <maintainer email="m.j.w.snippe@saxion.nl">M.J.W. Snippe</maintainer>
+
+
+  <!-- One license tag required, multiple allowed, one license per tag -->
+  <license>TODO</license>
+
+
+  <!-- Url tags are optional, but multiple are allowed, one per tag -->
+  <!-- <url type="website">http://wiki.ros.org/minrob_cv</url> -->
+
+
+  <!-- Author tags are optional, multiple are allowed, one per tag -->
+  <author email="m.j.w.snippe@saxion.nl">M.J.W. Snippe</author>
+
+
+  <!-- The *depend tags are used to specify dependencies -->
+  <!-- Dependencies can be catkin packages or system dependencies -->
+  <buildtool_depend>catkin</buildtool_depend>
+  <depend>rospy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>dynamic_reconfigure</depend>
+
+  <!-- The export tag contains other, unspecified, tags -->
+  <export>
+    <!-- Other tools can request additional information be placed here -->
+
+  </export>
+</package>

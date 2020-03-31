@@ -1,0 +1,8 @@
+prefix=/home/noah/RV_CV_Assignment_2_ws/devel
+
+Name: minrob_cv
+Description: Description of minrob_cv
+Version: 0.0.1
+Cflags: -I/home/noah/RV_CV_Assignment_2_ws/devel/include
+Libs: -L${prefix}/lib 
+Requires: 

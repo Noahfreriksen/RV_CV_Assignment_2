@@ -1,0 +1,41 @@
+<launch>
+
+    <!-- <include file="$(find video_stream_opencv)/launch/camera.launch" >
+        <arg
+            name="video_stream_provider"
+            value="$(find minrob_cv)/data/RV_CV_Assignment_2_A1_H264.mp4" />
+        <arg
+            name="fps"
+            value="25"/>
+        <arg
+            name="buffer_queue_size"
+            value="1000"/>
+        <arg
+            name="loop_videofile"
+            value="true"/>
+    </include> -->
+
+    <node
+        pkg="minrob_cv"
+        type="image_publisher.py"
+        name="image_publisher"
+        output="screen">
+        <param
+            name="video_file"
+            value="$(find minrob_cv)/data/RV_CV_Assignment_2_A1_H264.mp4"/>
+    </node>
+
+    <node
+        pkg="minrob_cv"
+        type="image_processor.py"
+        name="image_processor"
+        output="screen"/>
+
+    <node
+        pkg="rqt_gui"
+        type="rqt_gui"
+        name="rqt_gui"
+        output="screen"
+        args="--perspective-file $(find minrob_cv)/config/image-grid.perspective"/>
+
+</launch>

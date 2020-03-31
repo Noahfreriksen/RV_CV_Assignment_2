@@ -1,0 +1,2 @@
+minrob_cv
+-DCATKIN_DEVEL_PREFIX=/home/noah/RV_CV_Assignment_2_ws/devel -DCMAKE_INSTALL_PREFIX=/home/noah/RV_CV_Assignment_2_ws/install -G Unix Makefiles
