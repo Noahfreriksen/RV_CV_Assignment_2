@@ -16,6 +16,7 @@ class ImageProcessor():
     # Bridge instance that makes communication between OpenCV and ROS easier by
     # providing some easy to use conversions.
     bridge = CvBridge()
+    background = np.zeros(shape=[720, 1280, 3], dtype=np.uint8)
 
     def __init__(self):
         rospy.init_node('image_processor', anonymous=True)
@@ -80,7 +81,6 @@ class ImageProcessor():
         self.config = config
         return config
 
-
     def image_processing(self, im, frame_num):
         # =====================================================================
         # Here you should do the processing of the image.
@@ -105,12 +105,47 @@ class ImageProcessor():
                                                        encoding="passthrough"))
 
         # EIGEN TOEVOEGING
-        # Subtract background from moving image
-        if frame_num == 1:
-            background = im
-        
-        self.pubs[2].publish(self.bridge.cv2_to_imgmsg(subtracted,
-                                                       encoding="bgr8"))
+
+        im_hsv = cv2.GaussianBlur(im, (31, 31),0)
+
+        lower_bound1 = (150,
+                       50,
+                       180)
+        upper_bound1 = (200,
+                       150,
+                       220)
+
+        mask_hsv = cv2.inRange(im_hsv, lower_bound1, upper_bound1)
+
+        _,thresh = cv2.threshold(mask_hsv, 100, 110,0)
+        M = cv2.moments(thresh)
+
+        # Position of thomas
+        cX = int(M["m10"] / M["m00"]) - int(M["m00"]*0.000033645)
+        cY = int(M["m01"] / M["m00"]) - int(M["m00"]*0.000015)
+        cv2.circle(im, (cX, cY), 5, (255, 255, 255), -1)
+
+        # Find contours of billboard
+        _, cnts, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        #im = cv2.drawContours(im, cnts, -1, (0,255,0), 2)
+
+        # Load image
+        thomas = cv2.imread("/home/noah/RV_CV_Assignment_2_ws/src/minrob_cv/data/RV_CV_Assignment_2_poster.jpg",
+                            cv2.IMREAD_UNCHANGED)
+
+        # Find the contour of the billboard
+        c = max(cnts, key=cv2.contourArea)
+        if cv2.contourArea(c) > 18000:
+            size = cv2.minAreaRect(c)[1]
+            width = int(size[0])-20
+            height = int(size[1])-30          
+
+            resized = cv2.resize(thomas, (width, height), interpolation= cv2.INTER_AREA)
+            im[cY:cY+resized.shape[0], cX:cX+resized.shape[1]] = resized
+
+
+        self.pubs[2].publish(self.bridge.cv2_to_imgmsg(thresh,
+                                                       encoding="passthrough"))
 
 
         # EXAMPLE TO ADD THE SAXION LOGO ON TOP OF THE IMAGE
