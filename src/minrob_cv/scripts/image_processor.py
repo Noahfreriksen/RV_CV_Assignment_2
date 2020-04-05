@@ -12,6 +12,7 @@ from minrob_cv.cfg import ImageProcessorConfig
 
 
 class ImageProcessor():
+    approx = (1,1)
 
     # Bridge instance that makes communication between OpenCV and ROS easier by
     # providing some easy to use conversions.
@@ -104,10 +105,10 @@ class ImageProcessor():
         self.pubs[0].publish(self.bridge.cv2_to_imgmsg(im_thr,
                                                        encoding="passthrough"))
 
-        # EIGEN TOEVOEGING
+        # Blur the image to reduce noise
+        im_hsv_blur = cv2.GaussianBlur(im, (31, 31),0)
 
-        im_hsv = cv2.GaussianBlur(im, (31, 31),0)
-
+        # Set HSV values
         lower_bound1 = (150,
                        50,
                        180)
@@ -115,38 +116,105 @@ class ImageProcessor():
                        150,
                        220)
 
-        mask_hsv = cv2.inRange(im_hsv, lower_bound1, upper_bound1)
+        # Retrieve a mask with set values
+        mask_hsv = cv2.inRange(im_hsv_blur, lower_bound1, upper_bound1)
 
+        # Threshold the image
         _,thresh = cv2.threshold(mask_hsv, 100, 110,0)
+
+        # Retrieve moments of mask
         M = cv2.moments(thresh)
 
-        # Position of thomas
+        # First, get te center of the blob and then modify it to select upper left corner
         cX = int(M["m10"] / M["m00"]) - int(M["m00"]*0.000033645)
         cY = int(M["m01"] / M["m00"]) - int(M["m00"]*0.000015)
-        cv2.circle(im, (cX, cY), 5, (255, 255, 255), -1)
 
         # Find contours of billboard
         _, cnts, _ = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        #im = cv2.drawContours(im, cnts, -1, (0,255,0), 2)
 
         # Load image
         thomas = cv2.imread("/home/noah/RV_CV_Assignment_2_ws/src/minrob_cv/data/RV_CV_Assignment_2_poster.jpg",
                             cv2.IMREAD_UNCHANGED)
 
-        # Find the contour of the billboard
+        # Find the biggest contour
         c = max(cnts, key=cv2.contourArea)
+
+        # Check if billboard is fully visible
         if cv2.contourArea(c) > 18000:
+            # Do some calculations for scaling
             size = cv2.minAreaRect(c)[1]
             width = int(size[0])-20
             height = int(size[1])-30          
 
+            # Resize the image to fit the billboard
             resized = cv2.resize(thomas, (width, height), interpolation= cv2.INTER_AREA)
+
+            # Paste the image into the area of the billboard
             im[cY:cY+resized.shape[0], cX:cX+resized.shape[1]] = resized
 
+        # Chimney
 
-        self.pubs[2].publish(self.bridge.cv2_to_imgmsg(thresh,
-                                                       encoding="passthrough"))
+        # Set HSV values
+        lower_bound2 = (0,
+                       0,
+                       0)
+        upper_bound2 = (255,
+                       255,
+                       20)
 
+        im_hsv_blur = cv2.GaussianBlur(im, (5, 5),0)
+
+        
+        # Get a mask of the rooftop
+        mask_hsv2 = cv2.inRange(im_hsv_blur, lower_bound2, upper_bound2)
+
+        # Threshold the image
+        _,thresh2 = cv2.threshold(mask_hsv2, 100, 110,0)
+
+        # Get the size of the image
+        rows, cols = thresh2.shape
+        
+        #Remvove unwanted areas to only view the house
+        thresh2[0:rows,0:335] = 0
+        thresh2[0:rows,cols/2:cols] = 0
+        thresh2[200:rows,0:cols] = 0
+
+        # Global value for storing the PolyDP approximation
+        global approx
+        
+        # Only store the approximation on the first frame
+        if frame_num==1:
+
+            # Find the contour of the area
+            _, cnts, _ = cv2.findContours(thresh2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            # Find the biggest contour
+            c = max(cnts, key=cv2.contourArea)
+
+            # Calculate approximate accuracy 
+            epsilon = .01*cv2.arcLength(c,True)
+
+            # Polygonal curve
+            approx = cv2.approxPolyDP(c, epsilon, True)
+
+        # The points where the chimney needs to be drawn
+        left_point = tuple(approx[17])
+        middle_point = tuple(approx[11])
+        right_point = tuple(approx[0])
+
+        # Convert into tuples
+        left_xy = (left_point[0][0], left_point[0][1]-3)
+        middle_xy = (middle_point[0][0], middle_point[0][1])
+        right_xy = (right_point[0][0], right_point[0][1])
+        top_xy = (middle_point[0][0], middle_point[0][1]-25)
+
+        # Form list of coordinates
+        left_triangle = np.array( [left_xy, middle_xy, top_xy])
+        right_triangle = np.array( [right_xy, middle_xy, top_xy])
+
+        # Draw a filled contour on the coordinates
+        cv2.drawContours(im, [left_triangle], 0, (189,189,189), -1)
+        cv2.drawContours(im, [right_triangle], 0, (135,135,135), -1)
 
         # EXAMPLE TO ADD THE SAXION LOGO ON TOP OF THE IMAGE
         # Treat the alpha channel as inverted mask
